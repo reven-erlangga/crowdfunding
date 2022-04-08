@@ -36,6 +36,7 @@ func main() {
 	// Api version
 	v1 := router.Group("/api/v1")
 
+	// User web service
 	v1.POST("/users", userHandler.Create)
 	v1.POST("/users/login", userHandler.Login)
 	v1.POST("/users/email_checkers", userHandler.CheckEmailAvailability)
