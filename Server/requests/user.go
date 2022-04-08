@@ -11,3 +11,7 @@ type LoginUserRequest struct {
 	Email    string `json:"email" binding:"required" form:"email"`
 	Password string `json:"password" binding:"required"`
 }
+
+type CheckEmailRequest struct {
+	Email string `json:"email" binding:"required" form:"email"`
+}

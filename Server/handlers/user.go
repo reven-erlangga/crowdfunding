@@ -83,3 +83,36 @@ func (h *userHandler) Login(ctx *gin.Context) {
 
 	ctx.JSON(http.StatusOK, response)
 }
+
+// Check ketersediaan email
+func (h *userHandler) CheckEmailAvailability(ctx *gin.Context) {
+	var request requests.CheckEmailRequest
+
+	err := ctx.ShouldBindJSON(&request)
+	if err != nil {
+		response := helpers.ApiResponse("Email checking failed!", http.StatusUnprocessableEntity, "error", err.Error())
+		ctx.JSON(http.StatusUnprocessableEntity, response)
+		return
+	}
+
+	isEmailAvailable, err := h.userService.IsEmailAvailable(request)
+
+	if err != nil {
+		response := helpers.ApiResponse("Email checking failed!", http.StatusUnprocessableEntity, "error", err.Error())
+		ctx.JSON(http.StatusUnprocessableEntity, response)
+		return
+	}
+
+	data := gin.H{
+		"is_available": isEmailAvailable,
+	}
+
+	metaMessage := "Email has been registered"
+
+	if isEmailAvailable {
+		metaMessage = "Email is available"
+	}
+
+	response := helpers.ApiResponse(metaMessage, http.StatusOK, "success", data)
+	ctx.JSON(http.StatusUnprocessableEntity, response)
+}
