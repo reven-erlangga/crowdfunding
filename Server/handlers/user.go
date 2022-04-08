@@ -3,6 +3,7 @@ package handlers
 import (
 	"crowdfunding-server/formatter"
 	"crowdfunding-server/helpers"
+	"crowdfunding-server/models"
 	"crowdfunding-server/requests"
 	"crowdfunding-server/services"
 	"fmt"
@@ -152,7 +153,8 @@ func (h *userHandler) UploadAvatar(ctx *gin.Context) {
 		return
 	}
 
-	userId := 1
+	currentUser := ctx.MustGet("currentUser").(models.User)
+	userId := currentUser.ID
 
 	path := fmt.Sprintf("assets/images/avatars/%d-%s", userId, file.Filename)
 
