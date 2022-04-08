@@ -5,6 +5,8 @@ import (
 	"crowdfunding-server/repositories"
 	"crowdfunding-server/requests"
 	"errors"
+	"log"
+	"os"
 
 	"golang.org/x/crypto/bcrypt"
 )
@@ -13,6 +15,7 @@ type UserService interface {
 	Create(userRequest requests.RegisterUserRequest) (models.User, error)
 	Login(userRequest requests.LoginUserRequest) (models.User, error)
 	IsEmailAvailable(userRequest requests.CheckEmailRequest) (bool, error)
+	SaveAvatar(ID int, fileLocation string) (models.User, error)
 }
 
 type userServices struct {
@@ -88,4 +91,32 @@ func (s *userServices) IsEmailAvailable(request requests.CheckEmailRequest) (boo
 	}
 
 	return false, nil
+}
+
+// Save avatar
+func (s *userServices) SaveAvatar(ID int, fileLocation string) (models.User, error) {
+	user, err := s.userRepository.FindByID(ID)
+
+	if err != nil {
+		return user, err
+	}
+
+	// Check apakah avatar sudah ada
+	if user.AvatarFileName != "" {
+		// Delete avatar
+		e := os.Remove(user.AvatarFileName)
+		if e != nil {
+			log.Fatal(e)
+		}
+	}
+
+	user.AvatarFileName = fileLocation
+
+	updateUser, err := s.userRepository.Update(user)
+
+	if err != nil {
+		return updateUser, err
+	}
+
+	return updateUser, nil
 }

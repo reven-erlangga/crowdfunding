@@ -114,5 +114,52 @@ func (h *userHandler) CheckEmailAvailability(ctx *gin.Context) {
 	}
 
 	response := helpers.ApiResponse(metaMessage, http.StatusOK, "success", data)
-	ctx.JSON(http.StatusUnprocessableEntity, response)
+	ctx.JSON(http.StatusOK, response)
+}
+
+// Upload avatar
+func (h *userHandler) UploadAvatar(ctx *gin.Context) {
+	file, err := ctx.FormFile("avatar")
+
+	if err != nil {
+		data := gin.H{
+			"is_uploaded": false,
+		}
+		response := helpers.ApiResponse("Upload avatar failed!", http.StatusUnprocessableEntity, "error", data)
+		ctx.JSON(http.StatusUnprocessableEntity, response)
+		return
+	}
+
+	path := "assets/images/avatars/" + file.Filename
+
+	err = ctx.SaveUploadedFile(file, path)
+
+	if err != nil {
+		data := gin.H{
+			"is_uploaded": false,
+		}
+		response := helpers.ApiResponse("Upload avatar failed!", http.StatusUnprocessableEntity, "error", data)
+		ctx.JSON(http.StatusUnprocessableEntity, response)
+		return
+	}
+
+	userId := 1
+
+	_, err = h.userService.SaveAvatar(userId, path)
+
+	if err != nil {
+		data := gin.H{
+			"is_uploaded": false,
+		}
+		response := helpers.ApiResponse("Upload avatar failed!", http.StatusUnprocessableEntity, "error", data)
+		ctx.JSON(http.StatusUnprocessableEntity, response)
+		return
+	}
+
+	data := gin.H{
+		"is_uploaded": true,
+	}
+	response := helpers.ApiResponse("Avatar successfully uploaded", http.StatusOK, "success", data)
+
+	ctx.JSON(http.StatusOK, response)
 }
