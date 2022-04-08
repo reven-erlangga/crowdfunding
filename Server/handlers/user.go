@@ -13,10 +13,11 @@ import (
 
 type userHandler struct {
 	userService services.UserService
+	authService services.AuthService
 }
 
-func NewUserHandler(userService services.UserService) *userHandler {
-	return &userHandler{userService}
+func NewUserHandler(userService services.UserService, authService services.AuthService) *userHandler {
+	return &userHandler{userService, authService}
 }
 
 // Implementasi todo handler
@@ -48,7 +49,17 @@ func (h *userHandler) Create(ctx *gin.Context) {
 		return
 	}
 
-	formatter := formatter.FormatUser(newUser, "")
+	token, err := h.authService.GenerateToken(newUser.ID)
+
+	if err != nil {
+		response := helpers.ApiResponse("Register account failed!", http.StatusBadRequest, "error", err.Error())
+
+		ctx.JSON(http.StatusBadRequest, response)
+
+		return
+	}
+
+	formatter := formatter.FormatUser(newUser, token)
 
 	response := helpers.ApiResponse("Account created successfully", http.StatusOK, "success", formatter)
 
@@ -78,7 +89,17 @@ func (h *userHandler) Login(ctx *gin.Context) {
 		return
 	}
 
-	formatUser := formatter.FormatUser(loggedInUser, "")
+	token, err := h.authService.GenerateToken(loggedInUser.ID)
+
+	if err != nil {
+		response := helpers.ApiResponse("Login failed!", http.StatusBadRequest, "error", err.Error())
+
+		ctx.JSON(http.StatusBadRequest, response)
+
+		return
+	}
+
+	formatUser := formatter.FormatUser(loggedInUser, token)
 
 	response := helpers.ApiResponse("Login successfully", http.StatusOK, "success", formatUser)
 

@@ -25,8 +25,11 @@ func main() {
 	db.AutoMigrate(&models.User{})
 
 	userRepository := repositories.NewUserRepository(db)
+
 	userService := services.NewUserService(userRepository)
-	userHandler := handlers.NewUserHandler(userService)
+	authService := services.NewAuthService()
+
+	userHandler := handlers.NewUserHandler(userService, authService)
 
 	router := gin.Default()
 
