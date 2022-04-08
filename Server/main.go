@@ -34,6 +34,7 @@ func main() {
 	v1 := router.Group("/api/v1")
 
 	v1.POST("/users", userHandler.Create)
+	v1.POST("/users/login", userHandler.Login)
 
 	router.Run()
 }

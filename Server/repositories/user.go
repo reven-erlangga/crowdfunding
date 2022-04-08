@@ -1,19 +1,14 @@
 package repositories
 
 import (
-	"errors"
-
 	"gorm.io/gorm"
 
 	"crowdfunding-server/models"
 )
 
 type UserRepository interface {
-	FindAll() ([]models.User, error)
-	FindByID(ID int) (models.User, error)
-	Create(todo models.User) (models.User, error)
-	Update(todo models.User) (models.User, error)
-	Delete(todo models.User) (models.User, error)
+	Save(todo models.User) (models.User, error)
+	FindByEmail(email string) (models.User, error)
 }
 
 type userRepository struct {
@@ -26,43 +21,20 @@ func NewUserRepository(db *gorm.DB) *userRepository {
 
 // Implementasi user repository
 
-func (r *userRepository) FindAll() ([]models.User, error) {
-	var users []models.User
-
-	err := r.db.Find(&users).Error
-
-	return users, err
-}
-
-func (r *userRepository) FindByID(ID int) (models.User, error) {
-	var user models.User
-
-	result := r.db.Find(&user, ID)
-
-	err := result.Error
-
-	// Apabila data tidak ada / tidak ditemukan maka return error
-	if result.RowsAffected == 0 && err == nil {
-		err = errors.New("todo not found")
-	}
-
-	return user, err
-}
-
-func (r *userRepository) Create(user models.User) (models.User, error) {
+func (r *userRepository) Save(user models.User) (models.User, error) {
 	err := r.db.Create(&user).Error
 
 	return user, err
 }
 
-func (r *userRepository) Update(todo models.User) (models.User, error) {
-	err := r.db.Save(&todo).Error
+func (r *userRepository) FindByEmail(email string) (models.User, error) {
+	var user models.User
 
-	return todo, err
-}
+	err := r.db.Where("email = ?", email).First(&user).Error
 
-func (r *userRepository) Delete(todo models.User) (models.User, error) {
-	err := r.db.Delete(&todo).Error
+	if err != nil {
+		return user, err
+	}
 
-	return todo, err
+	return user, nil
 }
