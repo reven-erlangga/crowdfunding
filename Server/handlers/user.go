@@ -5,6 +5,7 @@ import (
 	"crowdfunding-server/helpers"
 	"crowdfunding-server/requests"
 	"crowdfunding-server/services"
+	"fmt"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
@@ -130,7 +131,9 @@ func (h *userHandler) UploadAvatar(ctx *gin.Context) {
 		return
 	}
 
-	path := "assets/images/avatars/" + file.Filename
+	userId := 1
+
+	path := fmt.Sprintf("assets/images/avatars/%d-%s", userId, file.Filename)
 
 	err = ctx.SaveUploadedFile(file, path)
 
@@ -142,8 +145,6 @@ func (h *userHandler) UploadAvatar(ctx *gin.Context) {
 		ctx.JSON(http.StatusUnprocessableEntity, response)
 		return
 	}
-
-	userId := 1
 
 	_, err = h.userService.SaveAvatar(userId, path)
 
