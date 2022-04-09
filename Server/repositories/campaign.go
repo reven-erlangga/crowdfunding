@@ -7,6 +7,7 @@ import (
 )
 
 type CampaignRepository interface {
+	Save(campaign models.Campaign) (models.Campaign, error)
 	FindAll() ([]models.Campaign, error)
 	FindByUserID(userID int) ([]models.Campaign, error)
 	FindByID(ID int) (models.Campaign, error)
@@ -18,6 +19,16 @@ type campaignRepository struct {
 
 func NewCampaignRepository(db *gorm.DB) *campaignRepository {
 	return &campaignRepository{db}
+}
+
+func (r *campaignRepository) Save(campaign models.Campaign) (models.Campaign, error) {
+	err := r.db.Create(&campaign).Error
+
+	if err != nil {
+		return campaign, err
+	}
+
+	return campaign, nil
 }
 
 func (r *campaignRepository) FindAll() ([]models.Campaign, error) {

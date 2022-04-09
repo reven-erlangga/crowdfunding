@@ -53,8 +53,9 @@ func main() {
 	v1.POST("/users/upload_avatar", authMiddleware(authService, userService), userHandler.UploadAvatar) // upload avatar
 
 	// Campaign web service
-	v1.GET("/campaigns", authMiddleware(authService, userService), campaignHandler.GetCampaigns)    // get campaigns
-	v1.GET("/campaigns/:id", authMiddleware(authService, userService), campaignHandler.GetCampaign) // get detail campaigns
+	v1.GET("/campaigns", campaignHandler.GetCampaigns)                                              // get campaigns
+	v1.GET("/campaigns/:id", campaignHandler.GetCampaign)                                           // get detail campaigns
+	v1.POST("/campaigns", authMiddleware(authService, userService), campaignHandler.CreateCampaign) // get campaigns
 
 	router.Run()
 }

@@ -4,11 +4,15 @@ import (
 	"crowdfunding-server/models"
 	"crowdfunding-server/repositories"
 	"crowdfunding-server/requests"
+	"fmt"
+
+	"github.com/gosimple/slug"
 )
 
 type CampaignService interface {
 	GetCampaigns(userID int) ([]models.Campaign, error)
 	GetCampaignByID(request requests.GetCampaignDetailRequest) (models.Campaign, error)
+	CreateCampaign(request requests.CreateCampaignRequest) (models.Campaign, error)
 }
 
 type campaignService struct {
@@ -47,4 +51,26 @@ func (s *campaignService) GetCampaignByID(request requests.GetCampaignDetailRequ
 	}
 
 	return campaign, nil
+}
+
+func (s *campaignService) CreateCampaign(request requests.CreateCampaignRequest) (models.Campaign, error) {
+	slugCandidate := fmt.Sprintf("%s %d", request.Name, request.User.ID)
+	slugCandidate = slug.Make(slugCandidate)
+
+	campaign := models.Campaign{
+		Name:             request.Name,
+		ShortDescription: request.ShortDescription,
+		Description:      request.Description,
+		GoalAmount:       request.GoalAmount,
+		Perks:            request.Perks,
+		UserID:           request.User.ID,
+		Slug:             slugCandidate,
+	}
+
+	newCampaign, err := s.repository.Save(campaign)
+	if err != nil {
+		return newCampaign, nil
+	}
+
+	return newCampaign, nil
 }
