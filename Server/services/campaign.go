@@ -4,6 +4,7 @@ import (
 	"crowdfunding-server/models"
 	"crowdfunding-server/repositories"
 	"crowdfunding-server/requests"
+	"errors"
 	"fmt"
 
 	"github.com/gosimple/slug"
@@ -13,6 +14,7 @@ type CampaignService interface {
 	GetCampaigns(userID int) ([]models.Campaign, error)
 	GetCampaignByID(request requests.GetCampaignDetailRequest) (models.Campaign, error)
 	CreateCampaign(request requests.CreateCampaignRequest) (models.Campaign, error)
+	UpdateCampaign(requestID requests.GetCampaignDetailRequest, requestData requests.CreateCampaignRequest) (models.Campaign, error)
 }
 
 type campaignService struct {
@@ -73,4 +75,30 @@ func (s *campaignService) CreateCampaign(request requests.CreateCampaignRequest)
 	}
 
 	return newCampaign, nil
+}
+
+func (s *campaignService) UpdateCampaign(requestID requests.GetCampaignDetailRequest, requestData requests.CreateCampaignRequest) (models.Campaign, error) {
+	campaign, err := s.repository.FindByID(requestID.ID)
+
+	if err != nil {
+		return campaign, err
+	}
+
+	if campaign.UserID != requestData.User.ID {
+		return campaign, errors.New("You are not allowed to update this campaign")
+	}
+
+	campaign.Name = requestData.Name
+	campaign.ShortDescription = requestData.ShortDescription
+	campaign.Description = requestData.Description
+	campaign.GoalAmount = requestData.GoalAmount
+	campaign.Perks = requestData.Perks
+
+	updatedCampaign, err := s.repository.Save(campaign)
+
+	if err != nil {
+		return updatedCampaign, err
+	}
+
+	return updatedCampaign, nil
 }

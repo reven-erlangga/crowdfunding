@@ -11,6 +11,7 @@ type CampaignRepository interface {
 	FindAll() ([]models.Campaign, error)
 	FindByUserID(userID int) ([]models.Campaign, error)
 	FindByID(ID int) (models.Campaign, error)
+	Update(campaign models.Campaign) (models.Campaign, error)
 }
 
 type campaignRepository struct {
@@ -59,6 +60,16 @@ func (r *campaignRepository) FindByID(ID int) (models.Campaign, error) {
 	var campaign models.Campaign
 
 	err := r.db.Preload("User").Preload("CampaignImages").Where("id = ?", ID).Find(&campaign).Error
+
+	if err != nil {
+		return campaign, err
+	}
+
+	return campaign, nil
+}
+
+func (r *campaignRepository) Update(campaign models.Campaign) (models.Campaign, error) {
+	err := r.db.Save(&campaign).Error
 
 	if err != nil {
 		return campaign, err
