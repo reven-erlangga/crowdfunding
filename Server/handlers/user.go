@@ -156,9 +156,9 @@ func (h *userHandler) UploadAvatar(ctx *gin.Context) {
 	currentUser := ctx.MustGet("currentUser").(models.User)
 	userId := currentUser.ID
 
-	path := fmt.Sprintf("assets/images/avatars/%d-%s", userId, file.Filename)
+	path := fmt.Sprintf("images/avatars/%d-%s", userId, file.Filename)
 
-	err = ctx.SaveUploadedFile(file, path)
+	err = ctx.SaveUploadedFile(file, "assets/"+path)
 
 	if err != nil {
 		data := gin.H{

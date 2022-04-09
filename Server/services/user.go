@@ -105,7 +105,7 @@ func (s *userServices) SaveAvatar(ID int, fileLocation string) (models.User, err
 	// Check apakah avatar sudah ada
 	if user.AvatarFileName != "" {
 		// Delete avatar
-		e := os.Remove(user.AvatarFileName)
+		e := os.Remove("assets/" + user.AvatarFileName)
 		if e != nil {
 			log.Fatal(e)
 		}

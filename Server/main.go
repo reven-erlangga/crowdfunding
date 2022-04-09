@@ -41,6 +41,7 @@ func main() {
 	campaignHandler := handlers.NewCampaignHandler(campaignService)
 
 	router := gin.Default()
+	router.Static("/images", "./assets/images")
 
 	// Api version
 	v1 := router.Group("/api/v1")
