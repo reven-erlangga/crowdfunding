@@ -1,6 +1,7 @@
 package handlers
 
 import (
+	"crowdfunding-server/formatter"
 	"crowdfunding-server/helpers"
 	"crowdfunding-server/services"
 	"net/http"
@@ -30,6 +31,6 @@ func (h *campaignHandler) GetCampaigns(ctx *gin.Context) {
 		return
 	}
 
-	response := helpers.ApiResponse("List of campaign", http.StatusOK, "success", campaigns)
+	response := helpers.ApiResponse("List of campaign", http.StatusOK, "success", formatter.FormatCampaigns(campaigns))
 	ctx.JSON(http.StatusOK, response)
 }
