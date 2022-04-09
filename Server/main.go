@@ -27,13 +27,18 @@ func main() {
 
 	// Migration model
 	db.AutoMigrate(&models.User{})
+	db.AutoMigrate(&models.Campaign{})
+	db.AutoMigrate(&models.CampaignImage{})
 
 	userRepository := repositories.NewUserRepository(db)
+	campaignRepository := repositories.NewCampaignRepository(db)
 
 	userService := services.NewUserService(userRepository)
+	campaignService := services.NewCampaignService(campaignRepository)
 	authService := services.NewAuthService()
 
 	userHandler := handlers.NewUserHandler(userService, authService)
+	campaignHandler := handlers.NewCampaignHandler(campaignService)
 
 	router := gin.Default()
 
@@ -45,6 +50,9 @@ func main() {
 	v1.POST("/users/login", userHandler.Login)                                                          // login
 	v1.POST("/users/email_checkers", userHandler.CheckEmailAvailability)                                // check email available
 	v1.POST("/users/upload_avatar", authMiddleware(authService, userService), userHandler.UploadAvatar) // upload avatar
+
+	// Campaign web service
+	v1.GET("/campaigns", authMiddleware(authService, userService), campaignHandler.GetCampaigns) // get campaigns
 
 	router.Run()
 }
