@@ -31,11 +31,7 @@ func FormatCampaign(campaign models.Campaign) CampaignFormatter {
 }
 
 func FormatCampaigns(campaigns []models.Campaign) []CampaignFormatter {
-	if len(campaigns) == 0 {
-		return []CampaignFormatter{}
-	}
-
-	var campaignsFormatter []CampaignFormatter
+	campaignsFormatter := []CampaignFormatter{}
 
 	for _, campaign := range campaigns {
 		campaignFormatter := FormatCampaign(campaign)
