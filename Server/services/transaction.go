@@ -22,14 +22,13 @@ func NewTransactionService(repository repositories.TransactionRepository, campai
 }
 
 func (s *transactionService) GetTransactionByCampaignID(request requests.GetTransactionsCampaignRequest) ([]models.Transaction, error) {
-
 	campaign, err := s.campaignRepository.FindByID(request.ID)
 
 	if err != nil {
 		return []models.Transaction{}, err
 	}
 
-	if campaign.User.ID != request.User.ID {
+	if campaign.User.ID != request.ID {
 		return []models.Transaction{}, errors.New("you are not authorized to view this campaign")
 	}
 

@@ -25,7 +25,7 @@ func (h *transactionHandler) GetCampaignTransactions(ctx *gin.Context) {
 	err := ctx.ShouldBindUri(&request)
 
 	if err != nil {
-		response := helpers.ApiResponse("Failed to get campaign transactions!", http.StatusBadRequest, "error", nil)
+		response := helpers.ApiResponse("Failed to get campaign transactions!", http.StatusBadRequest, "error", err.Error())
 		ctx.JSON(http.StatusBadRequest, response)
 		return
 	}
@@ -33,7 +33,7 @@ func (h *transactionHandler) GetCampaignTransactions(ctx *gin.Context) {
 	transactions, err := h.service.GetTransactionByCampaignID(request)
 
 	if err != nil {
-		response := helpers.ApiResponse("Failed to get campaign transactions!", http.StatusBadRequest, "error", nil)
+		response := helpers.ApiResponse("Failed to get campaign transactions!", http.StatusBadRequest, "error", err.Error())
 		ctx.JSON(http.StatusBadRequest, response)
 		return
 	}

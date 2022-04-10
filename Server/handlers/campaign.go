@@ -42,7 +42,7 @@ func (h *campaignHandler) GetCampaign(ctx *gin.Context) {
 	var request requests.GetCampaignDetailRequest
 
 	err := ctx.ShouldBindUri(&request)
-
+	fmt.Println(request.ID)
 	if err != nil {
 		response := helpers.ApiResponse("Failed to get campaign!", http.StatusBadRequest, "error", nil)
 		ctx.JSON(http.StatusBadRequest, response)
