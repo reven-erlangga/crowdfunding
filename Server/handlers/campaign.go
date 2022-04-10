@@ -6,6 +6,7 @@ import (
 	"crowdfunding-server/models"
 	"crowdfunding-server/requests"
 	"crowdfunding-server/services"
+	"fmt"
 	"net/http"
 	"strconv"
 
@@ -131,5 +132,67 @@ func (h *campaignHandler) UpdateCampaign(ctx *gin.Context) {
 	}
 
 	response := helpers.ApiResponse("Success to update campaign!", http.StatusOK, "success", formatter.FormatCampaign(updateCampaign))
+	ctx.JSON(http.StatusOK, response)
+}
+
+func (h *campaignHandler) UploadImage(ctx *gin.Context) {
+	var request requests.CreateCampaignImageRequest
+
+	err := ctx.ShouldBind(&request)
+
+	if err != nil {
+		errors := helpers.ValidationError(err)
+		errorMessage := gin.H{
+			"errors": errors,
+		}
+
+		response := helpers.ApiResponse("Failed to upload image!", http.StatusBadRequest, "error", errorMessage)
+		ctx.JSON(http.StatusBadRequest, response)
+		return
+	}
+	currentUser := ctx.MustGet("currentUser").(models.User)
+
+	request.User = currentUser
+
+	file, err := ctx.FormFile("file")
+
+	if err != nil {
+		data := gin.H{
+			"is_uploaded": false,
+		}
+		response := helpers.ApiResponse("Failed to upload campaign image!", http.StatusBadRequest, "error", data)
+		ctx.JSON(http.StatusBadRequest, response)
+		return
+	}
+
+	path := fmt.Sprintf("images/campaigns/%d-%s", request.User.ID, file.Filename)
+
+	err = ctx.SaveUploadedFile(file, "assets/"+path)
+
+	if err != nil {
+		data := gin.H{
+			"errors": err.Error(),
+		}
+		response := helpers.ApiResponse("Cant save image!", http.StatusBadRequest, "error", data)
+		ctx.JSON(http.StatusBadRequest, response)
+		return
+	}
+
+	_, err = h.service.SaveCampaignImage(request, path)
+
+	if err != nil {
+		data := gin.H{
+			"is_uploaded": false,
+		}
+		response := helpers.ApiResponse("Upload campaign image failed!", http.StatusBadRequest, "error", data)
+		ctx.JSON(http.StatusBadRequest, response)
+		return
+	}
+
+	data := gin.H{
+		"is_uploaded": true,
+	}
+	response := helpers.ApiResponse("Upload campaign success!", http.StatusOK, "success", data)
+
 	ctx.JSON(http.StatusOK, response)
 }

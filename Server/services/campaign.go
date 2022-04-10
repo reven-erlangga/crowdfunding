@@ -15,6 +15,7 @@ type CampaignService interface {
 	GetCampaignByID(request requests.GetCampaignDetailRequest) (models.Campaign, error)
 	CreateCampaign(request requests.CreateCampaignRequest) (models.Campaign, error)
 	UpdateCampaign(requestID requests.GetCampaignDetailRequest, requestData requests.CreateCampaignRequest) (models.Campaign, error)
+	SaveCampaignImage(request requests.CreateCampaignImageRequest, fileLocation string) (models.CampaignImage, error)
 }
 
 type campaignService struct {
@@ -85,7 +86,7 @@ func (s *campaignService) UpdateCampaign(requestID requests.GetCampaignDetailReq
 	}
 
 	if campaign.UserID != requestData.User.ID {
-		return campaign, errors.New("You are not allowed to update this campaign")
+		return campaign, errors.New("you are not allowed to update this campaign")
 	}
 
 	campaign.Name = requestData.Name
@@ -101,4 +102,41 @@ func (s *campaignService) UpdateCampaign(requestID requests.GetCampaignDetailReq
 	}
 
 	return updatedCampaign, nil
+}
+
+func (s *campaignService) SaveCampaignImage(request requests.CreateCampaignImageRequest, fileLocation string) (models.CampaignImage, error) {
+	campaign, err := s.repository.FindByID(request.CampaignID)
+
+	if err != nil {
+		return models.CampaignImage{}, err
+	}
+
+	if campaign.UserID != request.User.ID {
+		return models.CampaignImage{}, errors.New("you are not allowed to update this campaign")
+	}
+
+	isPrimary := 0
+
+	if request.IsPrimary {
+		isPrimary = 1
+		_, err := s.repository.MarkAllImagesAsNonPrimary(request.CampaignID)
+
+		if err != nil {
+			return models.CampaignImage{}, err
+		}
+	}
+
+	campaignImage := models.CampaignImage{
+		CampaignID: request.CampaignID,
+		IsPrimary:  isPrimary,
+		FileName:   fileLocation,
+	}
+
+	newCampaignImage, err := s.repository.CreateImage(campaignImage)
+
+	if err != nil {
+		return newCampaignImage, err
+	}
+
+	return newCampaignImage, nil
 }
